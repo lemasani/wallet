@@ -1,9 +1,9 @@
 import express, { NextFunction, Request, Response} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import expenseRoutes from './routes/expenseRoutes';
 import { errorHandler } from './middlewares/errorHandler';
 import userRoutes from './routes/userRoutes';
+import authRoutes from './routes/authRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -16,8 +16,9 @@ app.use(cors());
 app.use(express.json()); // Parse JSON bodies
 
 // Routes
-app.use('/api/expenses', expenseRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+
 
 // Health check
 app.get('/', (req: Request, res: Response) => {
