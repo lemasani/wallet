@@ -1,13 +1,14 @@
-import express, { Application, Request, Response } from 'express';
+import express, { NextFunction, Request, Response} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import expenseRoutes from './routes/expenseRoutes';
 import { errorHandler } from './middlewares/errorHandler';
+import userRoutes from './routes/userRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
 
-const app: Application = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -16,14 +17,18 @@ app.use(express.json()); // Parse JSON bodies
 
 // Routes
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/', (req: Request, res: Response) => {
-	res.send('Expense Tracker Backend is running!');
+	res.send('Wallet core running!');
 });
 
-// Error handling middleware (should be added after routes)
-app.use(errorHandler);
+// Error handling middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+	errorHandler(err, req, res, next);
+});
+
 
 // Start the server
 app.listen(PORT, () => {

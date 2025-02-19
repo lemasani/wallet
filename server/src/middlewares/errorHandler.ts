@@ -1,89 +1,50 @@
 import { Request, Response, NextFunction } from 'express';
-
-// Custom error interface
-interface CustomError extends Error {
-  status?: number;
-  code?: string;
-}
+import { AppError } from './../utils/AppError';
+import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
 
 export const errorHandler = (
-  err: CustomError,
+  err: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  // Log the error for debugging
-  console.error({
-    message: err.message,
-    stack: err.stack,
-    timestamp: new Date().toISOString(),
-    path: req.path,
-    method: req.method,
-  });
+  // Default error
+  let customError = {
+    statusCode: 500,
+    message: 'Something went wrong',
+    errors: [] as { field: string; message: string; }[]
+  };
 
-  // Default error values
-  let statusCode = err.status || 500;
-  let message = err.message || 'Internal Server Error';
-
-  // Handle specific error types
-  switch (true) {
-    case err instanceof SyntaxError:
-      statusCode = 400;
-      message = 'Invalid request syntax';
-      break;
-
-    case err instanceof TypeError:
-      statusCode = 400;
-      message = 'Type error occurred';
-      break;
-
-    case err.code === 'ECONNREFUSED':
-      statusCode = 503;
-      message = 'Service temporarily unavailable';
-      break;
-
-    case err.message.toLowerCase().includes('validation'):
-      statusCode = 400;
-      message = err.message;
-      break;
-
-    case err.message.toLowerCase().includes('not found'):
-      statusCode = 404;
-      message = err.message;
-      break;
-
-    case err.message.toLowerCase().includes('unauthorized'):
-      statusCode = 401;
-      message = 'Authentication required';
-      break;
-
-    case err.message.toLowerCase().includes('forbidden'):
-      statusCode = 403;
-      message = 'Access forbidden';
-      break;
+  // Zod Validation Errors
+  if (err instanceof ZodError) {
+    customError.statusCode = 400;
+    customError.message = 'Validation Error';
+    customError.errors = err.errors.map(error => ({
+      field: error.path.join('.'),
+      message: error.message
+    }));
   }
 
-  // Send error response
-  res.status(statusCode).json({
+  // Prisma Errors
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === 'P2002') {
+      customError.statusCode = 409;
+      customError.message = 'Duplicate field value entered';
+    }
+  }
+
+  // Custom AppError
+  if (err instanceof AppError) {
+    customError.statusCode = err.statusCode;
+    customError.message = err.message;
+  }
+
+  // Send API Response
+  return res.status(customError.statusCode).json({
     success: false,
-    status: statusCode,
-    message: message,
-    ...(process.env.NODE_ENV === 'development' && {
-      stack: err.stack,
-      path: req.path,
-      method: req.method,
-    }),
+    message: customError.message,
+    errors: customError.errors.length ? customError.errors : undefined,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 };
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
