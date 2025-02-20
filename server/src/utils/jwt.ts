@@ -10,15 +10,18 @@ interface TokenPayload {
 }
 
 export const generateAccessToken = (payload: TokenPayload): string => {
+  
   const options: SignOptions = {
-    expiresIn: (process.env.JWT_ACCESS_TOKEN_EXPIRES_IN || '1h') as unknown as string // Cast to ms.StringValue
+  // @ts-ignore
+    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN!
   };
   return jwt.sign(payload, accessTokenSecret, options);
 };
 
 export const generateRefreshToken = (payload: TokenPayload): string => {
   const options: SignOptions = {
-    expiresIn: (process.env.JWT_REFRESH_TOKEN_EXPIRES_IN || '30d') as unknown as string // Cast to ms.StringValue
+    // @ts-ignore
+    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN!
   };
   return jwt.sign(payload, refreshTokenSecret, options);
 };
