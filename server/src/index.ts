@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { errorHandler } from './middlewares/errorHandler';
+import { errorHandler } from './middleware/errorHandler';
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 import  db from '../src/utils/db';
