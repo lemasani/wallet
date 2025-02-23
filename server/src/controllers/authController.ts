@@ -5,7 +5,11 @@ import { AppError } from '../utils/AppError';
 import { comparePassword } from '../utils/Encryption';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 
-export const userLoginController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+export const userLoginController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
 	try {
 		const validateData = loginSchema.parse(req.body);
 		const { email, password } = validateData;
@@ -47,19 +51,21 @@ export const userLoginController = async (req: Request, res: Response, next: Nex
 			maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 		});
 
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: true,
-			message: 'Login successfully',
+			message: 'Login successful',
 			accessToken
-		})
-
+		});
 	} catch (error) {
 		next(error);
 	}
 }
 
-export const refreshTokenController = async (req: Request, res: Response, next: NextFunction) => {
+export const refreshTokenController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
 	try {
 		const refreshToken = req.cookies.refreshToken;
 
@@ -109,17 +115,20 @@ export const refreshTokenController = async (req: Request, res: Response, next: 
 			maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 		});
 
-		return res.json({
+		res.json({
 			success: true,
 			accessToken: newAccessToken
 		});
-
 	} catch (error) {
 		next(error);
 	}
 };
 
-export const logoutController = async (req: Request, res: Response, next: NextFunction) => {
+export const logoutController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
 	try {
 		const refreshToken = req.cookies.refreshToken;
 
@@ -139,11 +148,10 @@ export const logoutController = async (req: Request, res: Response, next: NextFu
 		// Clear the refresh token cookie
 		res.clearCookie('refreshToken');
 
-		return res.json({
+		res.json({
 			success: true,
 			message: 'Logged out successfully'
 		});
-
 	} catch (error) {
 		next(error);
 	}
