@@ -1,7 +1,8 @@
-import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import { AppError } from './AppError';
 
-const accessTokenSecret = process.env.JWT_ACCESS_TOKEN_SECRET || 'access_secret';
-const refreshTokenSecret = process.env.JWT_REFRESH_TOKEN_SECRET || 'refresh_secret';
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'your-access-token-secret';
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret';
 
 // Define a type for the token payload
 interface TokenPayload {
@@ -10,26 +11,29 @@ interface TokenPayload {
 }
 
 export const generateAccessToken = (payload: TokenPayload): string => {
-  
-  const options: SignOptions = {
-  // @ts-ignore
-    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN!
-  };
-  return jwt.sign(payload, accessTokenSecret, options);
+  return jwt.sign(payload, ACCESS_TOKEN_SECRET, {
+    expiresIn: '15m' // Short-lived access token
+  });
 };
 
 export const generateRefreshToken = (payload: TokenPayload): string => {
-  const options: SignOptions = {
-    // @ts-ignore
-    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN!
-  };
-  return jwt.sign(payload, refreshTokenSecret, options);
+  return jwt.sign(payload, REFRESH_TOKEN_SECRET, {
+    expiresIn: '7d' // Long-lived refresh token
+  });
 };
 
-export const verifyAccessToken = (token: string): JwtPayload => {
-  return jwt.verify(token, accessTokenSecret) as JwtPayload;
+export const verifyAccessToken = (token: string): TokenPayload => {
+  try {
+    return jwt.verify(token, ACCESS_TOKEN_SECRET) as TokenPayload;
+  } catch (error) {
+    throw new AppError('Invalid access token', 401);
+  }
 };
 
-export const verifyRefreshToken = (token: string): JwtPayload => {
-  return jwt.verify(token, refreshTokenSecret) as JwtPayload;
+export const verifyRefreshToken = (token: string): TokenPayload => {
+  try {
+    return jwt.verify(token, REFRESH_TOKEN_SECRET) as TokenPayload;
+  } catch (error) {
+    throw new AppError('Invalid refresh token', 401);
+  }
 };

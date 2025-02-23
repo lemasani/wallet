@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { userLoginController } from '../controllers/authController';
-import { refreshTokenController } from '../controllers/refreshTokenController';
+import { userLoginController, refreshTokenController, logoutController } from '../controllers/authController';
+import { authenticateToken } from '../middleware/authMiddleware';
 
-const authRoutes = Router();
+const router = Router();
 
-// Route for user login
-authRoutes.post('/login', userLoginController);
+// Public routes
+router.post('/login', userLoginController);
+router.post('/refresh-token', refreshTokenController);
 
-// Route for refreshing tokens
-authRoutes.post('/refresh-token', refreshTokenController);
+// Protected routes
+router.post('/logout', authenticateToken, logoutController);
 
-export default authRoutes;
+export default router;
