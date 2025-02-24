@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import db from '../utils/db';
+import jwt from 'jsonwebtoken';
 
 // Extend Express Request type to include user
 declare global {

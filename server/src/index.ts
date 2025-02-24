@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/errorHandler';
 import userRoutes from './routes/userRoutes';
 import authRoutes from './routes/authRoutes';
 import  db from '../src/utils/db';
+import walletRoutes from './routes/walletRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Health check
 app.get('/', (req: Request, res: Response) => {
