@@ -15,6 +15,7 @@ model Account {
   User        User          @relation(fields: [userId], references: [id])
   Transaction Transaction[]
 
+  @@unique([name, userId]) // Ensures uniqueness of `name` per `userId`
   @@index([userId], map: "Account_userId_fkey")
 }
 
