@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id          String        @id @unique @db.VarChar(36)
+  id          String        @id @unique @default(uuid()) @db.VarChar(36)
   name        String
   balance     Float         @default(0)
   userId      String
@@ -19,7 +19,7 @@ model Account {
 }
 
 model Category {
-  id          String        @id @db.VarChar(36)
+  id          String        @id @default(uuid()) @db.VarChar(36)
   name        String
   userId      String
   User        User          @relation(fields: [userId], references: [id])
@@ -43,7 +43,7 @@ model Session {
 }
 
 model Transaction {
-  id              String           @id @db.VarChar(36)
+  id              String           @id @unique @default(uuid()) @db.VarChar(36)
   amount          Float
   transactionDate DateTime
   type            Transaction_type
