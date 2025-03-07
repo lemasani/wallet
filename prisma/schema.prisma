@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id          String        @id @unique @db.VarChar(36)
+  name        String
+  balance     Float         @default(0)
+  userId      String
+  User        User          @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
+
+  @@index([userId], map: "Account_userId_fkey")
+}
+
+model Category {
+  id          String        @id @db.VarChar(36)
+  name        String
+  userId      String
+  User        User          @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
+
+  @@index([userId], map: "Category_userId_fkey")
+}
+
+model Session {
+  id           String   @id
+  userId       String
+  refreshToken String   @db.Text
+  userAgent    String?
+  isValid      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([refreshToken(length: 255)])
+  @@index([userId], map: "Session_userId_fkey")
+}
+
+model Transaction {
+  id              String           @id @db.VarChar(36)
+  amount          Float
+  transactionDate DateTime
+  type            Transaction_type
+  description     String?
+  userId          String
+  accountId       String
+  categoryId      String
+  Account         Account          @relation(fields: [accountId], references: [id])
+  Category        Category         @relation(fields: [categoryId], references: [id])
+  User            User             @relation(fields: [userId], references: [id])
+
+  @@index([accountId], map: "Transaction_accountId_fkey")
+  @@index([categoryId], map: "Transaction_categoryId_fkey")
+  @@index([userId], map: "Transaction_userId_fkey")
+}
+
+model User {
+  id          String        @id @unique @default(uuid()) @db.VarChar(36)
+  firstName   String
+  lastName    String
+  email       String        @unique
+  password    String
+  isDeleted   Boolean       @default(false)
+  Account     Account[]
+  Category    Category[]
+  Session     Session[]
+  Transaction Transaction[]
+}
+
+enum Transaction_type {
+  expense
+  income
+}
