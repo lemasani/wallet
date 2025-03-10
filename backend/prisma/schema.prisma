@@ -26,6 +26,7 @@ model Category {
   User        User          @relation(fields: [userId], references: [id])
   Transaction Transaction[]
 
+  @@unique([name, userId])
   @@index([userId], map: "Category_userId_fkey")
 }
 
