@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Query} from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import {CreateWalletDto, UpdateWalletDto} from './dto/wallet.dto';
 
@@ -23,7 +23,7 @@ export class WalletController {
   }
 
   @Patch(':id')
-  update(@Param('id')  id: string, @Param('userId') userId:string, @Body(ValidationPipe) updateWalletDto: UpdateWalletDto) {
+  update(@Param('id')  id: string, @Query('userId') userId:string, @Body(ValidationPipe) updateWalletDto: UpdateWalletDto) {
     return this.walletService.update(id, userId, updateWalletDto);
   }
 
