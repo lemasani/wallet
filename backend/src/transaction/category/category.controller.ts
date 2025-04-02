@@ -1,6 +1,16 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Query} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ValidationPipe,
+  Query,
+} from '@nestjs/common';
 import { CategoryService } from './category.service';
-import {CreateCategoryDto, UpdateCategoryDto} from './dto/category.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 
 @Controller('transaction/category')
 export class CategoryController {
@@ -22,7 +32,11 @@ export class CategoryController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Query('userId') userId:string, @Body(ValidationPipe) updateCategory: UpdateCategoryDto) {
+  update(
+    @Param('id') id: string,
+    @Query('userId') userId: string,
+    @Body(ValidationPipe) updateCategory: UpdateCategoryDto,
+  ) {
     return this.categoryService.update(id, userId, updateCategory);
   }
 
